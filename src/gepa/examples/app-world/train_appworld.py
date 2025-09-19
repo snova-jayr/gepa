@@ -67,12 +67,12 @@ Solving a task can take up to 40 interactions between you and the Python REPL. E
     valset = [AppWorldTask(task_id=task_id) for task_id in val_task_ids[:5]]
     testset = [AppWorldTask(task_id=task_id) for task_id in test_task_ids[:10]]
 
+
     reflection_lm_name = "together_ai/deepseek-ai/DeepSeek-V3.1"
     reflection_lm = (
         lambda prompt: litellm.completion(
             model=reflection_lm_name,
             messages=[{"role": "user", "content": prompt}],
-            chat_template_kwargs={"thinking": True},
         )
         .choices[0]
         .message.content

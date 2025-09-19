@@ -11,7 +11,7 @@ from appworld_experiments.code.simplified import SimplifiedFullCodeReflexionAgen
 
 from gepa import EvaluationBatch, GEPAAdapter
 from appworld import AppWorld
-
+from appworld.evaluator import TestTracker
 
 class AppWorldTask(BaseModel):
     task_id: str
@@ -45,7 +45,7 @@ class AppWorldAdapter(GEPAAdapter):
             num_processes=1,
             process_index=0,
         )
-        self.agent.code_prompt_template = instruct_prompt
+        self.agent.gepa_prompt_replace = instruct_prompt
 
         for example in batch:
             task_id = example.task_id
@@ -53,6 +53,7 @@ class AppWorldAdapter(GEPAAdapter):
             try:
                 success = test_tracker.success
                 score = int(success)
+                #score = len(test_tracker.passes) / test_tracker._num_tests
                 failed_reason_list = []
                 for failure in test_tracker.failures:
                     failed_reason_list.append(json.dumps(failure, indent=2))
@@ -61,7 +62,7 @@ class AppWorldAdapter(GEPAAdapter):
                 #TODO: need to handle case for failed code execution
                 success = False
                 score = 0
-                failed_reason = "Did not terminate"
+                failed_reason = "\n\n".join(test_tracker)
             outputs.append(
                 f"App World outputs are omitted. Please see directory for detailed logging."
             )

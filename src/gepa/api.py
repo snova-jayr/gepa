@@ -234,8 +234,6 @@ def optimize(
         raise_on_exception=raise_on_exception,
     )
 
-    with experiment_tracker:
-        state = engine.run()
+    final_cheatsheet = engine.run()
 
-    result = GEPAResult.from_state(state)
-    return result
+    return final_cheatsheet

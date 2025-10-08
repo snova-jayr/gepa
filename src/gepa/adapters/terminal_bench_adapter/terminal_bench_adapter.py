@@ -9,6 +9,10 @@ from terminal_bench.agents.terminus_1 import CommandBatchResponse
 
 from gepa import EvaluationBatch, GEPAAdapter
 
+import threading
+import time
+import multiprocessing
+
 
 class TerminalBenchTask(BaseModel):
     task_id: str
@@ -42,7 +46,7 @@ def run_agent_tb(
         dataset_version,
         "--agent-import-path",
         agent_import_path,
-        "--model-name",
+        "--model",
         model_name,
         "--run-id",
         run_id,
@@ -59,16 +63,10 @@ def run_agent_tb(
 
     print(f"Running command: {' '.join(cmd)}")
 
-    try:
-        result = subprocess.run(cmd, env=env, cwd=Path(prompt_template_path).parent.parent, check=True)
-        print(f"Command completed successfully with return code: {result.returncode}")
-        return result.returncode
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed with return code: {e.returncode}")
-        return e.returncode
-    except Exception as e:
-        print(f"Error running command: {e}")
-        return 1
+    result = subprocess.run(cmd, env=env, cwd=Path(prompt_template_path).parent.parent, check=True)
+    # after this batch, I want to prune the docker system
+    print(f"Command completed successfully with return code: {result.returncode}")
+    return result.returncode
 
 
 def get_results(task_id: str, run_id: str) -> tuple[int, list]:

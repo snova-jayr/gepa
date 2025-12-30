@@ -6,8 +6,7 @@ from pathlib import Path
 from typing import Dict, Any
 
 from pydantic import BaseModel
-from appworld_experiments.code.simplified.base_agent import BaseAgent
-from appworld_experiments.code.simplified import SimplifiedFullCodeReflexionAgent
+from appworld_experiments.code.gepa.gepa_agent import GEPAAgent
 
 from gepa import EvaluationBatch, GEPAAdapter
 from appworld import AppWorld
@@ -23,7 +22,7 @@ class AppWorldAdapter(GEPAAdapter):
         agent_config: Dict[str, Any],
         experiment_name: str,
     ):
-        self.agent = BaseAgent.from_dict(agent_config)
+        self.agent = GEPAAgent.from_dict(agent_config)
         self.experiment_name = experiment_name
 
     def evaluate(

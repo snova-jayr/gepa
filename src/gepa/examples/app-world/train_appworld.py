@@ -14,7 +14,7 @@ import json
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--experiment_name", type=str, default=None)
-    parser.add_argument("--save-price-path", type=str, default='appworld_gepa_pricing.jsonl')
+    parser.add_argument("--save-price-path", type=str, default='appworld_gepa_prompt_modification_pricing.jsonl')
     args = parser.parse_args()
     experiment_name = args.experiment_name
     price_path_file = args.save_price_path

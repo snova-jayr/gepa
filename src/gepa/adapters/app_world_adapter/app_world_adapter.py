@@ -1,5 +1,7 @@
 import json
 import os
+import io
+import contextlib
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -46,34 +48,35 @@ class AppWorldAdapter(GEPAAdapter):
         )
         self.agent.gepa_prompt_replace = instruct_prompt
 
-        for example in batch:
-            task_id = example.task_id
-            test_tracker = self.agent.solve_task(task_id, self.experiment_name + example_run_id)
-            try:
-                success = test_tracker.success
-                score = int(success)
-                #score = len(test_tracker.passes) / test_tracker._num_tests
-                failed_reason_list = []
-                for failure in test_tracker.failures:
-                    failed_reason_list.append(json.dumps(failure, indent=2))
-                failed_reason = ','.join(failed_reason_list)
-            except Exception as e:
-                #TODO: need to handle case for failed code execution
-                success = False
-                score = 0
-                failed_reason = "\n\n".join(test_tracker)
-            outputs.append(
-                f"App World outputs are omitted. Please see directory for detailed logging."
-            )
-            scores.append(score)
-            trajectories.append(
-                {
-                    "messages": self.agent.messages,
-                    "instruction_prompt": instruct_prompt,
-                    "failed_reason": str(failed_reason),
-                    "success": success,
-                }
-            )
+        with contextlib.redirect_stdout(io.StringIO()):
+            for example in batch:
+                task_id = example.task_id
+                test_tracker = self.agent.solve_task(task_id, self.experiment_name + example_run_id)
+                try:
+                    success = test_tracker.success
+                    score = int(success)
+                    #score = len(test_tracker.passes) / test_tracker._num_tests
+                    failed_reason_list = []
+                    for failure in test_tracker.failures:
+                        failed_reason_list.append(json.dumps(failure, indent=2))
+                    failed_reason = ','.join(failed_reason_list)
+                except Exception as e:
+                    #TODO: need to handle case for failed code execution
+                    success = False
+                    score = 0
+                    failed_reason = "\n\n".join(test_tracker)
+                outputs.append(
+                    f"App World outputs are omitted. Please see directory for detailed logging."
+                )
+                scores.append(score)
+                trajectories.append(
+                    {
+                        "messages": self.agent.messages,
+                        "instruction_prompt": instruct_prompt,
+                        "failed_reason": str(failed_reason),
+                        "success": success,
+                    }
+                )
         return EvaluationBatch(
             outputs=outputs,
             scores=scores,
